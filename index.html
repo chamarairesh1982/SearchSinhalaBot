@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>සිංහල බුද්ධිමත් සෙවුම</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Noto Sans Sinhala', sans-serif;
+      background: #f4f6f8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      margin: 0;
+    }
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+    #search-box {
+      display: flex;
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 30px;
+      gap: 5px;
+    }
+    #query {
+      flex: 1;
+      padding: 12px 20px;
+      font-size: 18px;
+      border: 2px solid #3498db;
+      border-radius: 10px;
+      outline: none;
+    }
+    button {
+      padding: 12px 20px;
+      font-size: 18px;
+      background-color: #3498db;
+      color: white;
+      border: 2px solid #3498db;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    #result {
+      width: 100%;
+      max-width: 700px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    mark {
+      background-color: #f1c40f;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+    .source {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #7f8c8d;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>සිංහල බුද්ධිමත් සෙවුම</h1>
+
+  <div id="search-box">
+    <input type="text" id="query" placeholder="ඔබේ ප්‍රශ්නය යොදන්න...">
+    <button onclick="search()">සෙවීම</button>
+    <button onclick="startVoice()">🎤</button>
+  </div>
+
+  <div id="result"></div>
+
+  <script>
+    let data = [];
+
+    // Sinhala Synonym Dictionary
+    const synonyms = {
+      "නිවන්": ["නිවන්", "නිවන", "නිරෝධය", "සන්සුන", "සන්සුන්භාවය", "ප්‍රශ්වාසය", "ශාන්ති", "ප්‍රශාන්ති", "සන්සුනාව", "සන්සුනිය"],
+      "දහම": ["දහම", "ධර්මය", "ධර්ම", "ධම්ම", "ධර්මතා", "ධර්ම දේශනා", "ධර්මාවබෝධය", "ධර්මග්‍රන්ථය"],
+      "බුද්ධ": ["බුද්ධ", "බුදු", "බුදුන්වහන්සේ", "බුද්ධයා", "බුදුරජාණන් වහන්සේ", "සම්බුදු", "සර්වඥ"],
+      "සංසාරය": ["සංසාරය", "සංසාර", "සංසාර චක්‍රය", "ජාතිමරණය", "භවය", "අවිචි", "සංචාරය"],
+      "අනිච්ච": ["අනිච්ච", "අනිත්‍ය", "අනිත්‍යතාව", "අනිත්‍යභාවය", "අවිච්චි", "පෙලෙන ස්වභාවය"],
+      "දුක්ඛ": ["දුක්ඛ", "දුක්ඛය", "දුක්", "දුක්ඛත්වය", "පීඩා", "වෙදනා", "සාරග්‍රහණය", "අසාරභාවය"],
+      "අනාත්ම": ["අනාත්ම", "අනත්ථ", "අනාත්මභාවය", "නිශ්ඨිතභාවය", "නිර්මනභාවය"],
+      "සද්ධා": ["සද්ධා", "ශ්‍රද්ධාව", "ශ්‍රද්ධාවන්", "සද්ධාබලය", "විශ්වාසය"],
+      "සමථ": ["සමථ", "සමාධි", "නිවන්සමථ", "සන්සුන්භාවය", "නිවන්ගාමී සමාධි"],
+      "විපස්සනා": ["විපස්සනා", "විප්පස්සනා", "සති", "විවේකය", "සතිසම්පජ්ඣන්‍ය"],
+      "සීලය": ["සීලය", "සීල", "සීල සම්පත්", "අරිය සීලය", "ධර්මසීල"],
+      "පඤ්ඤා": ["පඤ්ඤා", "ප්‍රඥා", "විවෙක", "සංමා ආයෝග", "ඥාණය"],
+      "කරුනා": ["කරුනා", "කාෆුනා", "කෘපාව", "දයාව"],
+      "මෙත්ත": ["මෙත්ත", "මෙත්තා", "මෛත්‍රී", "මෛත්‍රීභාවය"],
+      "මුදිතා": ["මුදිතා", "මුදිතාව", "ප්‍රීතිය", "සතුටුභාවය"],
+      "ආනුසස්සති": ["ආනුසස්සති", "අනුස්මරණ", "අනුස්මරණය", "සති සමුදය", "විවේක සති"],
+      "සති": ["සති", "සතිසම්පජ්ඣන්‍ය", "සතිසංග්‍රහය"],
+      "නිරෝධ": ["නිරෝධ", "නිවන්", "නවම අරමුණ", "අරමුණු ප්‍රාප්තිය"],
+      "මග": ["මග", "අරිය මග", "අටගි මඟ", "අෂ්ටාංගික මාර්ගය"],
+      "සංඛාර": ["සංඛාර", "සංකල්ප", "සංඛාරය", "සංසාරි ස්වභාවය"],
+      "පටිච්චසමුප්පාදය": ["පටිච්චසමුප්පාදය", "අනිච්ච සංඥාව", "නිවන් සංඥාව", "නිවන්ගාමී සති"],
+      "අර්ය සත්‍යය": ["අර්ය සත්‍යය", "සත්‍යය", "අරිය සත්‍යය", "සතර අර්ය සත්‍යය"],
+      "නව සන්සන්දන": ["නව සන්සන්දන", "නව සන්ධානය", "නව දර්ශනය", "දර්ශනීය සන්ධානය"]
+    };
+
+    async function loadAllFiles() {
+      try {
+        const response = await fetch('textfile/file-list.json');
+        const textFiles = await response.json();
+        const promises = textFiles.map(file =>
+          fetch(file)
+            .then(response => response.text())
+            .then(text => text.split('\n').filter(line => line.trim() !== '').map(line => ({ text: line, source: file })))
+        );
+        const results = await Promise.all(promises);
+        data = results.flat();
+        console.log('All files loaded:', data.length, 'paragraphs.');
+      } catch (error) {
+        console.error('Error loading files:', error);
+      }
+    }
+
+    loadAllFiles();
+
+    function normalize(word) {
+      return word.replace(/(යන්|වන්|යන්ගේ|යන්වහන්සේ|ලා|න්|ය|ව|ළ|සේ)?$/, '');
+    }
+
+    function tokenize(text) {
+      return text
+        .replace(/[.,?؛“”"‘’'()\[\]{}]/g, '')
+        .split(/\s+/)
+        .filter(Boolean)
+        .map(normalize);
+    }
+
+    function expandSynonyms(words) {
+      let expanded = [];
+      words.forEach(word => {
+        let found = false;
+        for (const key in synonyms) {
+          if (synonyms[key].includes(word)) {
+            expanded = expanded.concat(synonyms[key]);
+            found = true;
+            break;
+          }
+        }
+        if (!found) expanded.push(word);
+      });
+      return Array.from(new Set(expanded));
+    }
+
+    function fuzzyScore(word1, word2) {
+      let matches = 0;
+      const minLength = Math.min(word1.length, word2.length);
+      for (let i = 0; i < minLength; i++) {
+        if (word1[i] === word2[i]) matches++;
+      }
+      return matches / Math.max(word1.length, word2.length);
+    }
+
+    function enhancedSimilarity(queryWords, textWords) {
+      let score = 0;
+      queryWords.forEach(qWord => {
+        textWords.forEach(tWord => {
+          const match = fuzzyScore(qWord, tWord);
+          if (match > 0.6) {
+            score += match;
+          }
+        });
+      });
+      return score;
+    }
+
+    function search() {
+      const query = document.getElementById('query').value.trim();
+      if (!query) {
+        document.getElementById('result').innerHTML = "<p>කරුණාකර ප්‍රශ්නයක් යොදන්න.</p>";
+        return;
+      }
+      if (data.length === 0) {
+        document.getElementById('result').innerHTML = "<p>දත්ත පූරණය නොවී ඇත.</p>";
+        return;
+      }
+
+      const queryWords = expandSynonyms(tokenize(query));
+      const scoredResults = data.map(item => {
+        const textWords = tokenize(item.text);
+        let score = enhancedSimilarity(queryWords, textWords);
+        if (item.text.includes(query)) {
+          score += 5; // Boost for exact match
+        }
+        return { ...item, score };
+      });
+
+      scoredResults.sort((a, b) => b.score - a.score);
+
+      const topResults = scoredResults.slice(0, 5).filter(r => r.score > 0);
+
+      if (topResults.length === 0) {
+        document.getElementById('result').innerHTML = "<p>කිසිදු ප්‍රතිඵලයක් නැත.</p>";
+        return;
+      }
+
+      document.getElementById('result').innerHTML = topResults.map(r => `
+        <div class="card">
+          ${highlight(r.text, queryWords)}
+          <div class="source">මූලාශ්‍රය: ${r.source}</div>
+        </div>
+      `).join('');
+    }
+
+    function highlight(text, queryWords) {
+      queryWords.forEach(word => {
+        const regex = new RegExp(`(${word})`, 'gi');
+        text = text.replace(regex, '<mark>$1</mark>');
+      });
+      return text;
+    }
+
+    function startVoice() {
+      const recognition = new webkitSpeechRecognition();
+      recognition.lang = 'si-LK';
+      recognition.start();
+      recognition.onresult = function(event) {
+        const query = event.results[0][0].transcript;
+        document.getElementById('query').value = query;
+        search();
+      };
+    }
+  </script>
+</body>
+</html>
