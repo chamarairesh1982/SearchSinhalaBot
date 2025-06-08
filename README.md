@@ -1,6 +1,7 @@
 # 🛕 Sinhala Dhamma Search Bot
 
-A fast, intelligent Sinhala-language Dhamma search engine built with HTML, JavaScript, and GitHub Pages. 
+A fast, intelligent Sinhala-language Dhamma search engine built with HTML, JavaScript, and GitHub Pages.
+Now enhanced with AI-powered semantic search using TensorFlow.js.
 
 Searches Buddhist teachings (ධර්ම දේශනා), Nibbana concepts (නිවන්), and more — 100% free and offline-capable.
 
@@ -11,6 +12,7 @@ Searches Buddhist teachings (ධර්ම දේශනා), Nibbana concepts (�
 - Sinhala Intelligent Search (සිංහල බුද්ධිමත් සෙවුම)
 - Synonym matching for Dhamma terms
 - Fast, no server — pure HTML & JS
+- Semantic ranking powered by TensorFlow.js Universal Sentence Encoder
 - Voice search support (🎤 Speak your question in Sinhala)
 - Optimized for Buddhist teachings, Nibbana, and Dhamma.
 
