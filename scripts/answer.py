@@ -6,7 +6,7 @@ from sentence_transformers import SentenceTransformer
 import requests
 
 HF_API = 'https://api-inference.huggingface.co/models/google/mt5-small'
-HF_TOKEN = os.getenv('HF_TOKEN')
+HF_TOKEN = os.getenv('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')
 
 MODEL_NAME = 'paraphrase-multilingual-MiniLM-L12-v2'
 
