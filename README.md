@@ -27,6 +27,23 @@ file-list.json -> List of all text files
 favicon.ico -> Temple favicon for website
 
 
+## 🤖 Local RAG Scripts
+Two Python scripts help build a vector index and answer questions using a Hugging Face model:
+
+1. `scripts/build_index.py` – read text files and create `index.json` with embeddings.
+2. `scripts/answer.py` – retrieve relevant paragraphs and query `google/mt5-small` via the Inference API.
+
+Set the `HF_TOKEN` environment variable with your Hugging Face access token before running `answer.py`.
+
+Example:
+
+```bash
+python scripts/build_index.py --text-dir textfile
+HF_TOKEN=your_token_here python scripts/answer.py "නිවන් දකින්නේ කෙසේද?"
+```
+
+This provides a lightweight RAG workflow for more intelligent answers.
+
 ## 🛠️ Tech Stack
 - HTML
 - CSS
