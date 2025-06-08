@@ -28,21 +28,23 @@ favicon.ico -> Temple favicon for website
 
 
 ## 🤖 Local RAG Scripts
-Two Python scripts help build a vector index and answer questions using a Hugging Face model:
+Several helper scripts support RAG workflows with the Hugging Face Hub:
 
-1. `scripts/build_index.py` – read text files and create `index.json` with embeddings.
-2. `scripts/answer.py` – retrieve relevant paragraphs and query `google/mt5-small` via the Inference API.
+1. `scripts/build_index.py` – read text files and create `index.json` with embeddings. Use `--append` to update an existing index.
+2. `scripts/upload_index.py` – push `index.json` to a Hugging Face dataset repository.
+3. `scripts/answer.py` – retrieve relevant paragraphs and query `google/mt5-small` via the Inference API.
 
-Set the `HF_TOKEN` environment variable with your Hugging Face access token before running `answer.py`.
+Set the `HF_TOKEN` environment variable with your Hugging Face access token before running these scripts.
 
 Example:
 
 ```bash
-python scripts/build_index.py --text-dir textfile
+python scripts/build_index.py --text-dir textfile --out index.json
+HF_TOKEN=your_token_here python scripts/upload_index.py --repo your-user/dataset
 HF_TOKEN=your_token_here python scripts/answer.py "නිවන් දකින්නේ කෙසේද?"
 ```
 
-This provides a lightweight RAG workflow for more intelligent answers.
+This provides a lightweight RAG workflow for more intelligent answers and allows storing the index on the Hugging Face Hub.
 
 ## 🛠️ Tech Stack
 - HTML
